@@ -1,59 +1,154 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Desafio Técnico: Cadastro de Livros (Livraria)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este projeto é a implementação de um desafio técnico para uma vaga de Desenvolvedor PHP. O objetivo é criar um sistema de CRUD (Create, Read, Update, Delete) para gerenciar Livros, Autores e Assuntos, seguindo um modelo de dados específico e aplicando as melhores práticas de desenvolvimento de software.
 
-## About Laravel
+O sistema foi construído em poucas horas, com foco em demonstrar proficiência em **SOLID**, **Clean Code**, **TDD** (Test-Driven Development) e domínio do ecossistema **Laravel**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Tecnologias Utilizadas
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+  * **Framework:** Laravel 12
+  * **Banco de Dados:** SQLite (para agilidade e portabilidade)
+  * **Frontend:** Bootstrap 5 (via `laravel/ui` e Vite)
+  * **Relatórios:** `barryvdh/laravel-dompdf` (para geração de PDF)
+  * **Testes:** PHPUnit
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Destaques da Implementação e Boas Práticas
 
-## Learning Laravel
+Este não é apenas um CRUD simples. A estrutura foi pensada para demonstrar uma arquitetura robusta e escalável, mesmo em um projeto pequeno:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+1.  **Mapeamento de Schema Legado (ORM Avançado):**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+      * O desafio exigia seguir um Modelo Entidade-Relacionamento (ERD) existente (ex: `CodAu`, `Livro_Autor`, `codAs`).
+      * Demonstrei como mapear o Eloquent (Active Record) para esse schema "legado", configurando `protected $table`, `protected $primaryKey`, `public $timestamps = false` e os nomes de chaves em relacionamentos `belongsToMany()`. Isso prova a capacidade de integrar o Laravel a sistemas existentes.
 
-## Laravel Sponsors
+2.  **SOLID - Princípio da Responsabilidade Única (SRP):**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+      * **Form Requests:** Toda a lógica de validação de criação (`Store...Request`) e atualização (`Update...Request`) foi extraída dos controllers. O controller nem "sabe" quais são as regras; ele apenas recebe os dados já validados (`$request->validated()`), mantendo-se "magro" (skinny controller).
+      * **Exemplo:** `app/Http/Requests/StoreLivroRequest.php`
 
-### Premium Partners
+3.  **SOLID - Princípio da Inversão de Dependência (DIP):**
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+      * Os controllers dependem de abstrações (os `Form Requests` específicos) em vez de implementações concretas (o `Request` genérico). Isso torna o código mais limpo e facilita os testes.
 
-## Contributing
+4.  **TDD (Test-Driven Development):**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+      * O CRUD de Autores foi guiado por testes de feature (`tests/Feature/AutorFeatureTest.php`). Os testes foram escritos *antes* do código de implementação para validar o "happy path" (criação com sucesso) e o "sad path" (falha de validação).
 
-## Code of Conduct
+5.  **Boas Práticas de Banco de Dados:**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+      * **Transações (`DB::transaction`):** As operações de `store` e `update` do `Livro` são complexas (mexem em 3 tabelas). Elas foram encapsuladas em transações para garantir a integridade atômica dos dados (ou tudo é salvo, ou nada é).
+      * **Evitando N+1 Query:** Na listagem de Livros (`LivroController@index`), utilizei **Eager Loading** (`Livro::with('autores', 'assuntos')`) para carregar os relacionamentos em uma única consulta, otimizando drasticamente a performance.
+      * **Migrations para `VIEW`s:** O relatório obrigatório é gerado a partir de uma `VIEW` (`view_relatorio_livros_autores`) que foi criada via Migration, mantendo toda a estrutura do banco versionada.
 
-## Security Vulnerabilities
+6.  **Tratamento de Erros Específico:**
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+      * Conforme solicitado no desafio, o sistema evita `try-catch` genéricos. No `AutorController@store`, por exemplo, há um `catch` específico para `QueryException` que verifica o código de erro de violação de `UNIQUE constraint`, retornando uma mensagem amigável ao usuário.
+      * **Proteção de Deleção:** O sistema impede a exclusão de Autores ou Assuntos que possuam livros associados, protegendo a integridade referencial.
 
-## License
+7.  **Segurança e Padrões Web:**
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+      * Uso de `@csrf` em todos os formulários.
+      * Proteção de `Mass Assignment` (`$fillable`) em todos os Models.
+      * Uso correto de verbos HTTP (formulários de exclusão usam `@method('DELETE')` em vez de links `GET`).
+
+-----
+
+## Como Inicializar e Testar o Projeto
+
+Siga este passo a passo para executar o projeto em seu ambiente local.
+
+### Pré-requisitos
+
+  * PHP (versão compatível com o Laravel do projeto, ex: 8.2+)
+  * Composer
+  * Node.js e NPM
+
+### Passo 1: Clonar o Repositório
+
+```bash
+git clone https://github.com/fernandes-azevedo/livraria.git
+cd [livraria]
+```
+
+### Passo 2: Instalar Dependências do PHP
+
+```bash
+composer install
+```
+
+### Passo 3: Configurar o Ambiente
+
+Copie o arquivo de ambiente de exemplo.
+
+```bash
+cp .env.example .env
+```
+
+*(No Windows, se `cp` falhar, use: `copy .env.example .env`)*
+
+### Passo 4: Gerar a Chave da Aplicação
+
+```bash
+php artisan key:generate
+```
+
+### Passo 5: Criar o Banco de Dados (SQLite)
+
+Este projeto usa SQLite para facilitar a configuração. Você só precisa criar o arquivo em branco:
+
+**No macOS ou Linux:**
+
+```bash
+touch database/database.sqlite
+```
+
+**No Windows (PowerShell):**
+
+```bash
+New-Item -ItemType File database\database.sqlite
+```
+
+*(Ou crie um arquivo vazio chamado `database.sqlite` manualmente dentro da pasta `database`)*
+
+### Passo 6: Rodar as Migrations (Criar Tabelas e View)
+
+Usamos `migrate:fresh` para garantir que o banco seja recriado do zero e a `VIEW` do relatório seja incluída corretamente.
+
+```bash
+php artisan migrate:fresh
+```
+
+### Passo 7: Instalar Dependências do Frontend
+
+```bash
+npm install
+```
+
+### Passo 8: Compilar os Assets (Bootstrap)
+
+Mantenha este comando rodando em um terminal separado para compilar o CSS/JS enquanto navega.
+
+```bash
+npm run dev
+```
+
+### Passo 9: Iniciar o Servidor
+
+Em outro terminal, inicie o servidor local do Laravel.
+
+```bash
+php artisan serve
+```
+
+### Passo 10: Acessar a Aplicação
+
+Pronto\! A aplicação estará disponível em:
+**[http://127.0.0.1:8000](http://127.0.0.1:8000)**
+
+### O que Testar:
+
+1.  Navegue pelos menus **Autores**, **Assuntos** e **Livros**.
+2.  Teste o CRUD completo (Criar, Editar, Listar, Excluir) para cada uma das 3 entidades.
+3.  Tente excluir um Autor que está associado a um Livro (o sistema deve impedir).
+4.  Tente cadastrar um Autor com um nome que já existe (o sistema deve retornar o erro de `UNIQUE`).
+5.  Clique no link **Relatório** na barra de navegação. Um PDF agrupado por autor deve ser gerado e aberto no navegador.

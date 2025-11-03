@@ -7,7 +7,7 @@ use App\Http\Controllers\LivroController;
 use App\Http\Controllers\RelatorioController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 });
 
 // Usei o padrão RESTful (/autores, /assuntos, /livros)

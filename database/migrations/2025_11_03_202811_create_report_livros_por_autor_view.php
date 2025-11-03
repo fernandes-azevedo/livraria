@@ -9,8 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Ponto de apresentação:
-        // "Tivemos que adaptar o SQL da VIEW para ser compatível com o SQLite.
+        // Adaptado SQL da VIEW para ser compatível com o SQLite.
         // A função 'GROUP_CONCAT' do SQLite não usa a palavra-chave 'SEPARATOR';
         // o separador é passado como o segundo argumento da função."
         DB::unprepared("
