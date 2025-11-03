@@ -118,6 +118,14 @@ Usamos `migrate:fresh` para garantir que o banco seja recriado do zero e a `VIEW
 php artisan migrate:fresh
 ```
 
+### Passo 6.1: Popular o banco de dados com dados de exemplo
+
+Para preencher o banco de dados com dados de exemplo (50 autores, 50 assuntos e 50 livros), execute o seguinte comando:
+
+```bash
+php artisan db:seed
+```
+
 ### Passo 7: Instalar Dependências do Frontend
 
 ```bash
