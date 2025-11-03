@@ -13,7 +13,7 @@
             <p class="lead">
                 Este é um projeto-desafio para demonstrar a implementação de um sistema
                 de livraria focado em arquitetura limpa, TDD e boas práticas
-                de desenvolvimento com Laravel.
+                de desenvolvimento com PHP.
             </p>
             <div class="d-grid gap-2 d-md-flex justify-content-md-start">
                 <a href="#features" class="btn btn-primary btn-lg px-4 me-md-2">Ver Features</a>
@@ -89,7 +89,7 @@
 
 <div class="container px-4 py-5 bg-light rounded-3">
     <h2 class="text-center mb-4">Explore o Sistema (CRUDs)</h2>
-    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-4">
         
         <div class="col">
             <div class="card h-100 shadow-sm text-center">
@@ -132,6 +132,20 @@
                 </div>
             </div>
         </div>
+
+        <div class="col">
+            <div class="card h-100 shadow-sm text-center">
+                <div class="card-body d-flex flex-column">
+                    <i class="bi bi-file-earmark-pdf-fill display-3 text-primary"></i>
+                    <h3 class="card-title mt-3">Relatórios</h3>
+                    <p class="card-text flex-grow-1">
+                        Gere relatórios em PDF, como a lista de livros agrupados por autor.
+                    </p>
+                    <a href="{{ route('relatorio.livros') }}" class="btn btn btn-outline-secondary mt-auto" target="_blank">Gerar Relatório</a>
+                </div>
+            </div>
+        </div>
+        
     </div>
 </div>
 

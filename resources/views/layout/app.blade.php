@@ -18,13 +18,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('livros.index') }}">Livros</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ route('autores.index') }}">Autores</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('assuntos.index') }}">Assuntos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('livros.index') }}">Livros</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('relatorio.livros') }}" target="_blank">Relatório</a>
