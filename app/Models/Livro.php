@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Livro extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $table = 'Livro';
 
@@ -23,6 +24,20 @@ class Livro extends Model
         'AnoPublicacao',
         'Valor',
     ];
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'Titulo' => $this->Titulo,
+            'Editora' => $this->Editora,
+            'AnoPublicacao' => $this->AnoPublicacao,
+        ];
+    }
 
     // Relacionamento N:N com Autor (mapeamento inverso)
     public function autores()

@@ -15,13 +15,25 @@ class LivroController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Usei 'with()' (Eager Loading) para carregar os autores e assuntos
-        // junto com os livros. Isso evita o problema N+1 Query e é uma
-        // ótima prática de performance.
-        $livros = Livro::with('autores', 'assuntos')->orderBy('Titulo')->get();
-        return view('livros.index', compact('livros'));
+        $busca = $request->input('busca');
+
+        // "Lógica de busca e paginação implementada.
+        // Se um termo de busca for fornecido, usa o Scout para a pesquisa.
+        // Caso contrário, exibe a lista paginada padrão."
+        if ($busca) {
+            // "O Eager Loading com 'with()' continua funcionando com o Scout."
+            $livros = Livro::search($busca)->query(function ($query) {
+                // "CORREÇÃO: Para usar Eager Loading com Scout, o método 'with()'
+                // deve ser aplicado dentro de uma closure no método 'query()'."
+                $query->with('autores', 'assuntos');
+            })->paginate(15);
+        } else {
+            $livros = Livro::with('autores', 'assuntos')->orderBy('Titulo')->paginate(15);
+        }
+
+        return view('livros.index', compact('livros', 'busca'));
     }
 
     /**

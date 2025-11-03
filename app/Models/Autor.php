@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Autor extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     // Como não seguir a convenção do Laravel, precisei instruir o Eloquent
     // sobre como este Model funciona.
@@ -28,6 +29,18 @@ class Autor extends Model
 
     // 5. Proteção de Mass Assignment para o campo 'Nome'.
     protected $fillable = ['Nome'];
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'Nome' => $this->Nome,
+        ];
+    }
 
     // Para o relacionamento N:N, precisei especificar todos os nomes customizados:
     // 1º: Model relacionado (Livro::class)

@@ -5,16 +5,25 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAssuntoRequest;
 use App\Http\Requests\UpdateAssuntoRequest;
 use App\Models\Assunto;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class AssuntoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $assuntos = Assunto::orderBy('Descricao')->get();
-        return view('assuntos.index', compact('assuntos'));
+        $busca = $request->input('busca');
+
+        if ($busca) {
+            $assuntos = Assunto::search($busca)->paginate(15);
+        } else {
+            $assuntos = Assunto::orderBy('Descricao')->paginate(15);
+        }
+
+        return view('assuntos.index', compact('assuntos', 'busca'));
     }
 
     /**
@@ -31,6 +40,10 @@ class AssuntoController extends Controller
     public function store(StoreAssuntoRequest $request)
     {
         Assunto::create($request->validated());
+
+        // "Invalida o cache de assuntos."
+        Cache::forget('assuntos.all');
+
         return redirect()->route('assuntos.index')
             ->with('success', 'Assunto cadastrado com sucesso!');
     }
@@ -57,6 +70,10 @@ class AssuntoController extends Controller
     public function update(UpdateAssuntoRequest $request, Assunto $assunto)
     {
         $assunto->update($request->validated());
+
+        // "Invalida o cache de assuntos."
+        Cache::forget('assuntos.all');
+
         return redirect()->route('assuntos.index')
             ->with('success', 'Assunto atualizado com sucesso!');
     }
@@ -74,6 +91,10 @@ class AssuntoController extends Controller
         }
 
         $assunto->delete();
+
+        // "Invalida o cache de assuntos."
+        Cache::forget('assuntos.all');
+
         return redirect()->route('assuntos.index')
             ->with('success', 'Assunto excluído com sucesso!');
     }

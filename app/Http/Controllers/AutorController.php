@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Autor;
 use App\Http\Requests\StoreAutorRequest; 
 use App\Http\Requests\UpdateAutorRequest; 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\QueryException;
 
 class AutorController extends Controller
@@ -12,11 +14,18 @@ class AutorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // "Buscando os dados. O Eloquent já sabe a tabela e a ordenação."
-        $autores = Autor::orderBy('Nome')->get();
-        return view('autores.index', ['autores' => $autores]);
+        $busca = $request->input('busca');
+
+        if ($busca) {
+            $autores = Autor::search($busca)->paginate(15);
+        } else {
+            // "Substituímos o get() por paginate() para paginar os resultados."
+            $autores = Autor::orderBy('Nome')->paginate(15);
+        }
+
+        return view('autores.index', compact('autores', 'busca'));
     }
 
     /**
@@ -35,6 +44,9 @@ class AutorController extends Controller
 
         // Toda a complexidade do mapeamento (CodAu, Nome, tabela Autor) foi absorvida pelo Model. 
         Autor::create($request->validated());
+
+        // "Invalida o cache de autores para que a lista seja atualizada no próximo acesso."
+        Cache::forget('autores.all');
 
         return redirect()->route('autores.index')
             ->with('success', 'Autor cadastrado com sucesso!');
@@ -63,6 +75,9 @@ class AutorController extends Controller
     {
         $autor->update($request->validated());
 
+        // "Invalida o cache de autores."
+        Cache::forget('autores.all');
+
         return redirect()->route('autores.index')
                          ->with('success', 'Autor atualizado com sucesso!');
     }
@@ -78,6 +93,9 @@ class AutorController extends Controller
         }
 
         $autor->delete();
+
+        // "Invalida o cache de autores."
+        Cache::forget('autores.all');
         return redirect()->route('autores.index')
                          ->with('success', 'Autor excluído com sucesso!');
     }
