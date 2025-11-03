@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Autor;
 use App\Http\Requests\StoreAutorRequest; 
+use App\Http\Requests\UpdateAutorRequest; 
+use Illuminate\Database\QueryException;
 
 class AutorController extends Controller
 {
@@ -51,15 +53,18 @@ class AutorController extends Controller
      */
     public function edit(Autor $autor)
     {
-        //
+        return view('autores.edit', compact('autor'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Autor $autor)
+    public function update(UpdateAutorRequest $request, Autor $autor)
     {
-        //
+        $autor->update($request->validated());
+
+        return redirect()->route('autores.index')
+                         ->with('success', 'Autor atualizado com sucesso!');
     }
 
     /**
@@ -67,6 +72,13 @@ class AutorController extends Controller
      */
     public function destroy(Autor $autor)
     {
-        //
+        if ($autor->livros()->count() > 0) {
+             return redirect()->route('autores.index')
+                              ->with('error', 'Este autor não pode ser excluído, pois está associado a livros.');
+        }
+
+        $autor->delete();
+        return redirect()->route('autores.index')
+                         ->with('success', 'Autor excluído com sucesso!');
     }
 }

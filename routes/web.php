@@ -10,6 +10,6 @@ Route::get('/', function () {
 });
 
 // Usei o padrão RESTful (/autores, /assuntos, /livros)
-Route::resource('autores', AutorController::class);
-Route::resource('assuntos', AssuntoController::class);
-Route::resource('livros', LivroController::class);
+Route::resource('autores', AutorController::class)->parameters(['autores' => 'autor']);
+Route::resource('assuntos', AssuntoController::class)->parameters(['assuntos' => 'assunto']);
+Route::resource('livros', LivroController::class)->parameters(['livros' => 'livro']);

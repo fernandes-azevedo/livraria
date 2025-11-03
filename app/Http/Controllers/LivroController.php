@@ -3,7 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Livro;
+use App\Models\Autor;
+use App\Models\Assunto;
+use App\Http\Requests\StoreLivroRequest;
+use App\Http\Requests\UpdateLivroRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LivroController extends Controller
 {
@@ -12,7 +17,11 @@ class LivroController extends Controller
      */
     public function index()
     {
-        //
+        // Usei 'with()' (Eager Loading) para carregar os autores e assuntos
+        // junto com os livros. Isso evita o problema N+1 Query e é uma
+        // ótima prática de performance.
+        $livros = Livro::with('autores', 'assuntos')->orderBy('Titulo')->get();
+        return view('livros.index', compact('livros'));
     }
 
     /**
@@ -20,15 +29,44 @@ class LivroController extends Controller
      */
     public function create()
     {
-        //
+        // Carrega autores e assuntos para preencher os <select> do formulário
+        $autores = Autor::orderBy('Nome')->get();
+        $assuntos = Assunto::orderBy('Descricao')->get();
+        return view('livros.create', compact('autores', 'assuntos'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreLivroRequest $request)
     {
-        //
+        // O cadastro de livro é uma operação crítica que mexe em 3 tabelas
+        // (Livro, Livro_Autor, Livro_Assunto). Para garantir a integridade,
+        // envolvi toda a operação em uma 'DB Transaction'. Ou tudo
+        // funciona, ou nada é salvo.
+        DB::beginTransaction();
+        try {
+            $validatedData = $request->validated();
+
+            // 1. Criar o Livro
+            $livro = Livro::create($validatedData);
+
+            // 2. Sincronizar os relacionamentos N:N
+            // O 'sync()' cuida de adicionar os IDs na tabela pivot.
+            $livro->autores()->sync($request->input('autores', []));
+            $livro->assuntos()->sync($request->input('assuntos', []));
+
+            // Se tudo deu certo, "comita" a transação
+            DB::commit();
+
+            return redirect()->route('livros.index')
+                ->with('success', 'Livro cadastrado com sucesso!');
+        } catch (\Exception $e) {
+            // Se algo deu errado, "reverte" a transação
+            DB::rollBack();
+            return back()->withInput()
+                ->with('error', 'Erro ao cadastrar o livro: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -44,15 +82,57 @@ class LivroController extends Controller
      */
     public function edit(Livro $livro)
     {
-        //
+        // Carrega o livro (já injetado), e também todos os autores
+        // e assuntos para popular os <select>.
+        $autores = Autor::orderBy('Nome')->get();
+        $assuntos = Assunto::orderBy('Descricao')->get();
+
+        // Para a view de edição, preciso pré-selecionar os autores
+        // e assuntos que já estão ligados ao livro.
+        // O método 'pluck()' do Eloquent é perfeito para isso:
+        // ele extrai apenas a coluna 'CodAu' da coleção de autores
+        // do livro, gerando um array de IDs [1, 5, 10].
+        $autoresSelecionados = $livro->autores->pluck('CodAu')->toArray();
+        $assuntosSelecionados = $livro->assuntos->pluck('codAs')->toArray();
+
+        return view('livros.edit', compact(
+            'livro',
+            'autores',
+            'assuntos',
+            'autoresSelecionados',
+            'assuntosSelecionados'
+        ));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Livro $livro)
+    public function update(UpdateLivroRequest $request, Livro $livro)
     {
-        //
+        // "Usei a mesma lógica de Transação do 'store'
+        // para garantir a integridade na atualização."
+        DB::beginTransaction();
+        try {
+            $validatedData = $request->validated();
+
+            // 1. Atualizar o Livro
+            $livro->update($validatedData);
+
+            // 2. Sincronizar os relacionamentos N:N
+            // "O 'sync()' é poderoso: ele remove os IDs que não
+            // vieram no request e adiciona os novos."
+            $livro->autores()->sync($request->input('autores', []));
+            $livro->assuntos()->sync($request->input('assuntos', []));
+
+            DB::commit();
+
+            return redirect()->route('livros.index')
+                ->with('success', 'Livro atualizado com sucesso!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()
+                ->with('error', 'Erro ao atualizar o livro: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -60,6 +140,14 @@ class LivroController extends Controller
      */
     public function destroy(Livro $livro)
     {
-        //
+        // "Como usei 'onDelete('cascade')' nas migrations das
+        // tabelas pivot (Livro_Autor, Livro_Assunto), ao excluir
+        // um Livro, o Laravel/Banco de Dados automaticamente
+        // exclui as referências nessas tabelas pivot.
+        // O controller fica limpo."
+        $livro->delete();
+        
+        return redirect()->route('livros.index')
+                         ->with('success', 'Livro excluído com sucesso!');
     }
 }
