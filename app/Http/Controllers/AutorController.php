@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Autor;
-use App\Http\Requests\StoreAutorRequest; 
-use App\Http\Requests\UpdateAutorRequest; 
+use App\Http\Requests\StoreAutorRequest;
+use App\Http\Requests\UpdateAutorRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\QueryException;
@@ -42,14 +42,23 @@ class AutorController extends Controller
     public function store(StoreAutorRequest $request)
     {
 
-        // Toda a complexidade do mapeamento (CodAu, Nome, tabela Autor) foi absorvida pelo Model. 
-        Autor::create($request->validated());
+        try {
+            // Toda a complexidade do mapeamento (CodAu, Nome, tabela Autor) foi absorvida pelo Model. 
+            Autor::create($request->validated());
 
-        // "Invalida o cache de autores para que a lista seja atualizada no próximo acesso."
-        Cache::forget('autores.all');
+            // "Invalida o cache de autores para que a lista seja atualizada no próximo acesso."
+            Cache::forget('autores.all');
 
-        return redirect()->route('autores.index')
-            ->with('success', 'Autor cadastrado com sucesso!');
+            return redirect()->route('autores.index')
+                ->with('success', 'Autor cadastrado com sucesso!');
+                
+        } catch (QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062 || str_contains($e->getMessage(), 'UNIQUE constraint failed')) {
+                return back()->withInput()->with('error', 'Erro: Este autor (Nome) já está cadastrado.');
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -79,7 +88,7 @@ class AutorController extends Controller
         Cache::forget('autores.all');
 
         return redirect()->route('autores.index')
-                         ->with('success', 'Autor atualizado com sucesso!');
+            ->with('success', 'Autor atualizado com sucesso!');
     }
 
     /**
@@ -88,8 +97,8 @@ class AutorController extends Controller
     public function destroy(Autor $autor)
     {
         if ($autor->livros()->count() > 0) {
-             return redirect()->route('autores.index')
-                              ->with('error', 'Este autor não pode ser excluído, pois está associado a livros.');
+            return redirect()->route('autores.index')
+                ->with('error', 'Este autor não pode ser excluído, pois está associado a livros.');
         }
 
         $autor->delete();
@@ -97,6 +106,6 @@ class AutorController extends Controller
         // "Invalida o cache de autores."
         Cache::forget('autores.all');
         return redirect()->route('autores.index')
-                         ->with('success', 'Autor excluído com sucesso!');
+            ->with('success', 'Autor excluído com sucesso!');
     }
 }

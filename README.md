@@ -101,3 +101,13 @@ Após a execução do comando, a aplicação estará disponível em:
 3.  Tente excluir um Autor que está associado a um Livro (o sistema deve impedir).
 4.  Tente cadastrar um Autor com um nome que já existe  (o sistema deve impedir).
 5.  Clique no link **Relatório** na barra de navegação. Um PDF agrupado por autor deve ser gerado e aberto no navegador.
+
+### Como Rodar os Testes
+
+Para executar a suíte de testes automatizados do projeto, utilize o seguinte comando no seu terminal:
+
+```bash
+composer test
+```
+
+Este comando irá executar os testes de feature e de unidade, garantindo que as funcionalidades principais da aplicação estão operando como esperado.
