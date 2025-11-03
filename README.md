@@ -55,7 +55,7 @@ Este não é apenas um CRUD simples. A estrutura foi pensada para demonstrar uma
 
 ## Como Inicializar e Testar o Projeto
 
-Siga este passo a passo para executar o projeto em seu ambiente local.
+Siga este passo a passo para executar o projeto em seu ambiente local de forma rápida e fácil.
 
 ### Pré-requisitos
 
@@ -63,94 +63,35 @@ Siga este passo a passo para executar o projeto em seu ambiente local.
   * Composer
   * Node.js e NPM
 
-### Passo 1: Clonar o Repositório
+### Instalação com um único comando
 
-```bash
-git clone https://github.com/fernandes-azevedo/livraria.git
-cd [livraria]
-```
+Para simplificar a instalação, foi criado um script que executa todos os passos necessários para configurar e iniciar a aplicação.
 
-### Passo 2: Instalar Dependências do PHP
+1.  **Clone o Repositório:**
+    ```bash
+    git clone https://github.com/fernandes-azevedo/livraria.git
+    cd livraria
+    ```
 
-```bash
-composer install
-```
+2.  **Execute o comando de start:**
+    Abra o terminal (Prompt de Comando, PowerShell, ou qualquer outro) na raiz do projeto e execute o seguinte comando:
+    ```bash
+    composer start
+    ```
 
-### Passo 3: Configurar o Ambiente
+### O que o `composer start` faz?
 
-Copie o arquivo de ambiente de exemplo.
+Este comando executa o script `start.php` que automatiza as seguintes tarefas:
 
-```bash
-cp .env.example .env
-```
+1.  **Instala as dependências do PHP:** Roda `composer install` (se necessário).
+2.  **Configura o ambiente:** Cria o arquivo `.env` a partir do `.env.example` (se necessário).
+3.  **Gera a chave da aplicação:** Roda `php artisan key:generate` (se necessário).
+4.  **Cria o banco de dados:** Cria o arquivo `database/database.sqlite` (se necessário).
+5.  **Executa as migrations e o seeder:** Roda `php artisan migrate:fresh --seed` para criar as tabelas e popular o banco com dados de exemplo.
+6.  **Instala as dependências do Frontend:** Roda `npm install` (se necessário).
+7.  **Inicia os servidores:** Roda `npm start`, que por sua vez inicia o servidor de desenvolvimento do Vite e o servidor do Laravel (`php artisan serve`) em paralelo.
 
-*(No Windows, se `cp` falhar, use: `copy .env.example .env`)*
-
-### Passo 4: Gerar a Chave da Aplicação
-
-```bash
-php artisan key:generate
-```
-
-### Passo 5: Criar o Banco de Dados (SQLite)
-
-Este projeto usa SQLite para facilitar a configuração. Você só precisa criar o arquivo em branco:
-
-**No macOS ou Linux:**
-
-```bash
-touch database/database.sqlite
-```
-
-**No Windows (PowerShell):**
-
-```bash
-New-Item -ItemType File database\database.sqlite
-```
-
-*(Ou crie um arquivo vazio chamado `database.sqlite` manualmente dentro da pasta `database`)*
-
-### Passo 6: Rodar as Migrations (Criar Tabelas e View)
-
-Usamos `migrate:fresh` para garantir que o banco seja recriado do zero e a `VIEW` do relatório seja incluída corretamente.
-
-```bash
-php artisan migrate:fresh
-```
-
-### Passo 6.1: Popular o banco de dados com dados de exemplo
-
-Para preencher o banco de dados com dados de exemplo (50 autores, 50 assuntos e 50 livros), execute o seguinte comando:
-
-```bash
-php artisan db:seed
-```
-
-### Passo 7: Instalar Dependências do Frontend
-
-```bash
-npm install
-```
-
-### Passo 8: Compilar os Assets (Bootstrap)
-
-Mantenha este comando rodando em um terminal separado para compilar o CSS/JS enquanto navega.
-
-```bash
-npm run dev
-```
-
-### Passo 9: Iniciar o Servidor
-
-Em outro terminal, inicie o servidor local do Laravel.
-
-```bash
-php artisan serve
-```
-
-### Passo 10: Acessar a Aplicação
-
-Pronto\! A aplicação estará disponível em:
+Após a execução do comando, a aplicação estará disponível em:
 **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
 
 ### O que Testar:
@@ -158,5 +99,5 @@ Pronto\! A aplicação estará disponível em:
 1.  Navegue pelos menus **Autores**, **Assuntos** e **Livros**.
 2.  Teste o CRUD completo (Criar, Editar, Listar, Excluir) para cada uma das 3 entidades.
 3.  Tente excluir um Autor que está associado a um Livro (o sistema deve impedir).
-4.  Tente cadastrar um Autor com um nome que já existe (o sistema deve retornar o erro de `UNIQUE`).
+4.  Tente cadastrar um Autor com um nome que já existe  (o sistema deve impedir).
 5.  Clique no link **Relatório** na barra de navegação. Um PDF agrupado por autor deve ser gerado e aberto no navegador.
