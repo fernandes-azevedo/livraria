@@ -9,6 +9,7 @@ use App\Http\Requests\StoreLivroRequest;
 use App\Http\Requests\UpdateLivroRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class LivroController extends Controller
 {
@@ -42,8 +43,12 @@ class LivroController extends Controller
     public function create()
     {
         // Carrega autores e assuntos para preencher os <select> do formulário
-        $autores = Autor::orderBy('Nome')->get();
-        $assuntos = Assunto::orderBy('Descricao')->get();
+        $autores = Cache::remember('autores_list', now()->addHour(), function () {
+            return Autor::orderBy('Nome')->get();
+        });
+        $assuntos = Cache::remember('assuntos_list', now()->addHour(), function () {
+            return Assunto::orderBy('Descricao')->get();
+        });
         return view('livros.create', compact('autores', 'assuntos'));
     }
 
@@ -96,8 +101,12 @@ class LivroController extends Controller
     {
         // Carrega o livro (já injetado), e também todos os autores
         // e assuntos para popular os <select>.
-        $autores = Autor::orderBy('Nome')->get();
-        $assuntos = Assunto::orderBy('Descricao')->get();
+        $autores = Cache::remember('autores_list', now()->addHour(), function () {
+            return Autor::orderBy('Nome')->get();
+        });
+        $assuntos = Cache::remember('assuntos_list', now()->addHour(), function () {
+            return Assunto::orderBy('Descricao')->get();
+        });
 
         // Para a view de edição, preciso pré-selecionar os autores
         // e assuntos que já estão ligados ao livro.
