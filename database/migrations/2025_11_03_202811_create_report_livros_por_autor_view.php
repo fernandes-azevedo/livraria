@@ -1,32 +1,32 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        // Adaptado SQL da VIEW para ser compatível com o SQLite.
-        // A função 'GROUP_CONCAT' do SQLite não usa a palavra-chave 'SEPARATOR';
-        // o separador é passado como o segundo argumento da função."
+        // "Usei 'CREATE OR REPLACE VIEW' para tornar esta migração idempotente.
+        // Isso garante que ela possa ser executada com segurança, mesmo que
+        // a view já exista no banco, tornando o deploy mais robusto."
         DB::unprepared("
-            CREATE VIEW view_relatorio_livros_autores AS
+            CREATE OR REPLACE VIEW view_relatorio_livros_autores AS
             SELECT
                 a.Nome AS autor_nome,
                 l.Titulo AS livro_titulo,
                 l.Editora AS livro_editora,
                 l.AnoPublicacao AS livro_ano,
                 l.Valor AS livro_valor,
-                
-                -- AQUI ESTÁ A CORREÇÃO:
-                (SELECT GROUP_CONCAT(ass.Descricao, ', ') 
+
+                (SELECT GROUP_CONCAT(ass.Descricao SEPARATOR ', ') 
                  FROM Assunto ass
                  JOIN Livro_Assunto las ON ass.codAs = las.Assunto_codAs
                  WHERE las.Livro_CodI = l.CodI) AS assuntos
-                 
+
             FROM Autor a
             JOIN Livro_Autor la ON a.CodAu = la.Autor_CodAu
             JOIN Livro l ON la.Livro_CodI = l.CodI
@@ -35,6 +35,9 @@ return new class extends Migration
         ");
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         DB::unprepared("DROP VIEW IF EXISTS view_relatorio_livros_autores");

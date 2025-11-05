@@ -1,0 +1,100 @@
+services:
+    # Serviço da Aplicação PHP
+    app:
+        container_name: app
+        build:
+            context: ./docker/app
+            dockerfile: Dockerfile
+            args:
+                UID: '${UID:-1000}'
+                GID: '${GID:-1000}'
+        image: 'livraria/app'
+        environment:
+            DB_HOST: mysql
+            DB_PORT: 3306
+            DB_DATABASE: '${DB_DATABASE}'
+            DB_USERNAME: '${DB_USERNAME}'
+            DB_PASSWORD: '${DB_PASSWORD}'
+            REDIS_HOST: redis
+            REDIS_PORT: 6379
+        volumes:
+            - '.:/var/www/html' # Monta seu código
+        networks:
+            - laravel
+        depends_on:
+            - mysql
+            - redis
+
+    # Serviço do Servidor Web
+    nginx:
+        container_name: nginx
+        image: 'nginx:alpine'
+        ports:
+            - '${APP_PORT:-80}:80' # Expõe a porta 80
+        volumes:
+            - '.:/var/www/html'
+            - './docker/nginx:/etc/nginx/conf.d' # Carrega a config do Nginx
+        networks:
+            - laravel
+        depends_on:
+            - app
+
+    # Serviço do Node.js para Vite
+    node:
+        image: node:20-alpine
+        container_name: livraria-node
+        user: "${UID:-1000}:${GID:-1000}"
+        working_dir: /var/www/html
+        volumes:
+            - .:/var/www/html
+        ports:
+            - "5173:5173"
+        command: sh -c "npm install && npm run build" #build pois o laravel usa o vite em produção
+        networks:
+            - laravel        
+
+    # Serviço do Banco de Dados
+    mysql:
+        container_name: mysql
+        image: 'mysql/mysql-server:8.0'
+        ports:
+            - '${FORWARD_DB_PORT:-3306}:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: '%'
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+        volumes:
+            - 'laravel-mysql:/var/lib/mysql'
+        networks:
+            - laravel
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+            retries: 3
+            timeout: 5s
+
+    # Serviço do Redis
+    redis:
+        container_name: redis
+        image: 'redis:alpine'
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        volumes:
+            - 'laravel-redis:/data'
+        networks:
+            - laravel
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            retries: 3
+            timeout: 5s
+
+# Redes e Volumes
+networks:
+    laravel:
+        driver: bridge
+volumes:
+    laravel-mysql:
+        driver: local
+    laravel-redis:
+        driver: local
