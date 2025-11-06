@@ -16,6 +16,12 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Adicionei o 'DROP'
+        // no início do método 'up()' para garantir que os
+        // testes (que rodam 'migrate:fresh' repetidamente)
+        // nunca falhem.
+        DB::unprepared('DROP PROCEDURE IF EXISTS sp_GetDashboardStats');
+
         DB::unprepared('
             CREATE PROCEDURE sp_GetDashboardStats()
             BEGIN

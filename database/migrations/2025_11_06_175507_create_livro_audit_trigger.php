@@ -17,6 +17,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // "Para que a migração funcione com o 'RefreshDatabase'
+        // dos testes, ela precisa ser 'idempotente' (re-executável).
+        // Adicionei o 'DROP TRIGGER IF EXISTS' antes de criá-la.
+        DB::unprepared('DROP TRIGGER IF EXISTS trg_livro_after_insert');
+
         DB::unprepared('
             CREATE TRIGGER trg_livro_after_insert
             AFTER INSERT ON Livro
