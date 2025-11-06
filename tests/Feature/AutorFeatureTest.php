@@ -14,7 +14,7 @@ class AutorFeatureTest extends TestCase
     public function it_can_create_an_autor()
     {
         // "O teste segue o mesmo, mas agora testa os campos do ERD.
-        // O payload envia 'Nome' (como no ERD) e esperamos
+        // O payload envia 'Nome' (como no ERD) e espera
         // que ele seja salvo na tabela 'Autor'."
         $response = $this->post('/autores', ['Nome' => 'Ariano Suassuna']);
 

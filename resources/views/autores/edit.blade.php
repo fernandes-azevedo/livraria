@@ -11,7 +11,7 @@
                 @method('PUT')
 
                 <div class="mb-3">
-                    <label for="Nome" class="form-label">Nome do Autor</label>
+                    <label for="Nome" class="form-label"><b>Nome do Autor *</b></label>
                     <input type="text"
                            class="form-control @error('Nome') is-invalid @enderror"
                            id="Nome"

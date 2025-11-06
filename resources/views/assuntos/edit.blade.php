@@ -10,7 +10,7 @@
                 @method('PUT')
 
                 <div class="mb-3">
-                    <label for="Descricao" class="form-label">Descrição</label>
+                    <label for="Descricao" class="form-label"><b>Descrição *</b></label>
                     <input type="text"
                            class="form-control @error('Descricao') is-invalid @enderror"
                            id="Descricao"

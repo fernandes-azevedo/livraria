@@ -30,7 +30,7 @@ if (!file_exists('.env')) {
 }
 
 // 3. Gerar chave da aplicação
-// Precisamos verificar se a chave já está definida
+// Verifica se a chave já está definida
 $envContent = file_get_contents('.env');
 if (strpos($envContent, 'APP_KEY=') === false || strpos($envContent, 'APP_KEY=') > strpos($envContent, 'APP_KEY=base64:')) {
     runCommand('php artisan key:generate');
