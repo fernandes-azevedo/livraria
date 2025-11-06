@@ -8,6 +8,7 @@ use App\Http\Requests\StoreLivroRequest;
 use App\Http\Requests\UpdateLivroRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 use Exception;
 
 class LivroController extends Controller
@@ -16,7 +17,6 @@ class LivroController extends Controller
     {
         // "O endpoint principal de listagem usa Eager Loading ('with')
         // e Scout para busca, garantindo performance e flexibilidade."
-        
         $busca = $request->input('busca');
         
         // Eager Loading é crucial para os 'whenLoaded' no Resource
@@ -43,16 +43,29 @@ class LivroController extends Controller
                 return $livro;
             });
 
-            // Carregamos os relacionamentos para retornar o objeto completo
             $livro->load('autores', 'assuntos');
             
-            return (new LivroResource($livro))->response()->setStatusCode(201);
+            // Padrão de Resposta: 201 com wrapper
+            return response()->json([
+                'message' => 'Livro cadastrado com sucesso!',
+                'data' => new LivroResource($livro)
+            ], 201);
 
+        } catch (QueryException $e) {
+            // Código 1452: Foreign Key constraint violation (MySQL)
+            // (ex: enviar um autor_id que não existe)
+            if ($e->errorInfo[1] == 1452) {
+                return response()->json([
+                    'error' => 'Falha ao criar o livro. Um dos autores ou assuntos enviados é inválido.'
+                ], 422); // 422 Unprocessable Entity
+            }
+            return response()->json([
+                'error' => 'Falha ao criar o livro. Erro de banco de dados.'
+            ], 500);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Falha ao criar o livro. ' . $e->getMessage()
             ], 500);
-            //TODO - melhorar para trazer retornos especificos tratando os erros do banco
         }
     }
 
@@ -75,8 +88,22 @@ class LivroController extends Controller
             });
 
             $livro->load('autores', 'assuntos');
-            return new LivroResource($livro);
+            
+            // Padrão de Resposta: 200 com wrapper
+            return response()->json([
+                'message' => 'Livro atualizado com sucesso!',
+                'data' => new LivroResource($livro)
+            ], 200);
 
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1452) {
+                return response()->json([
+                    'error' => 'Falha ao atualizar o livro. Um dos autores ou assuntos enviados é inválido.'
+                ], 422);
+            }
+            return response()->json([
+                'error' => 'Falha ao atualizar o livro. Erro de banco de dados.'
+            ], 500);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Falha ao atualizar o livro. ' . $e->getMessage()
@@ -87,6 +114,7 @@ class LivroController extends Controller
     public function destroy(Livro $livro)
     {
         $livro->delete();
-        return response()->noContent();
+        
+        return response()->json(['message' => 'Livro removido com sucesso.'], 200);
     }
 }

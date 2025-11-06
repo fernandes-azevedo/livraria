@@ -8,6 +8,7 @@ use App\Http\Requests\StoreAssuntoRequest;
 use App\Http\Requests\UpdateAssuntoRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\QueryException;
 
 class AssuntoController extends Controller
 {
@@ -24,9 +25,25 @@ class AssuntoController extends Controller
 
     public function store(StoreAssuntoRequest $request)
     {
-        $assunto = Assunto::create($request->validated());
-        Cache::forget('assuntos_list');
-        return (new AssuntoResource($assunto))->response()->setStatusCode(201);
+        try {
+            $assunto = Assunto::create($request->validated());
+            Cache::forget('assuntos_list');
+
+            // Padrão de Resposta: 201 com wrapper
+            return response()->json([
+                'message' => 'Assunto cadastrado com sucesso!',
+                'data' => new AssuntoResource($assunto)
+            ], 201);
+            
+        } catch (QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062 || str_contains($e->getMessage(), 'UNIQUE constraint failed')) {
+                return response()->json([
+                    'error' => 'Esta descrição de assunto já está cadastrada.'
+                ], 422);
+            }
+            return response()->json(['error' => 'Erro de banco de dados.'], 500);
+        }
     }
 
     public function show(Assunto $assunto)
@@ -36,10 +53,25 @@ class AssuntoController extends Controller
 
     public function update(UpdateAssuntoRequest $request, Assunto $assunto)
     {
-        $assunto->update($request->validated());
-        Cache::forget('assuntos_list');
-        
-        return new AssuntoResource($assunto);
+        try {
+            $assunto->update($request->validated());
+            Cache::forget('assuntos_list');
+            
+            // Padrão de Resposta: 200 com wrapper
+            return response()->json([
+                'message' => 'Assunto atualizado com sucesso!',
+                'data' => new AssuntoResource($assunto)
+            ], 200);
+
+        } catch (QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062 || str_contains($e->getMessage(), 'UNIQUE constraint failed')) {
+                return response()->json([
+                    'error' => 'Esta descrição de assunto já está cadastrada.'
+                ], 422);
+            }
+            return response()->json(['error' => 'Erro de banco de dados.'], 500);
+        }
     }
 
     public function destroy(Assunto $assunto)
@@ -51,6 +83,8 @@ class AssuntoController extends Controller
         }
         $assunto->delete();
         Cache::forget('assuntos_list');
-        return response()->noContent();
+        
+        // Padrão de Resposta: 200 com mensagem
+        return response()->json(['message' => 'Assunto removido com sucesso.'], 200);
     }
 }
