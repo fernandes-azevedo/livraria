@@ -25,10 +25,10 @@ log_cmd() {
 # Função para executar um comando e parar em caso de erro
 run_command() {
     log_cmd "$1"
-    # Executa o comando. O 'set -e' no topo (implícito) pararia, 
-    # mas vamos ser explícitos para clareza.
     if ! $1; then
         log_error "O comando falhou. Abortando o script."
+        # Tenta parar os containers em caso de falha
+        docker compose down
         exit 1
     fi
 }
@@ -53,38 +53,46 @@ log_info "Iniciando o script de setup do Ambiente Docker..."
 # 1. Verificar .env
 check_env
 
-# 2. Subir os contêineres Docker
-log_info "Iniciando e construindo os contêineres Docker... (Isso pode levar alguns minutos na primeira vez)"
-run_command "docker compose up -d --build"
-log_success "Contêineres estão no ar!"
+# 2. Subir os serviços de backend (MySQL, Redis) e o Node.
+#    Note que 'app' e 'nginx' NÃO são iniciados aqui.
+log_info "Iniciando serviços de base (mysql, redis, node)..."
+run_command "docker compose up -d --build mysql redis node"
+log_success "Serviços de base estão no ar!"
 
-# 3. Aguardar o MySQL ficar pronto (importante!)
+# 3. Construir a imagem do 'app' (PHP-FPM), mas não iniciar o serviço
+log_info "Construindo a imagem do container 'app' (PHP-FPM)..."
+run_command "docker compose build app"
+
+# 4. Instalar dependências do Composer (O Pulo do Gato)
+#    Usamos 'run --rm' para criar um container 'app' temporário
+#    que executa 'composer install' e depois é destruído.
+#    Isso cria a pasta 'vendor/' no volume compartilhado.
+log_info "Instalando dependências do Composer..."
+run_command "docker compose run --rm app composer install --no-interaction --prefer-dist --optimize-autoloader"
+log_success "Pasta 'vendor/' criada."
+
+# 5. Agora, iniciar 'app' e 'nginx'
+#    O 'app' (PHP-FPM) agora vai iniciar com sucesso, pois 'vendor/' existe.
+#    O 'nginx' agora poderá se conectar ao 'app'.
+log_info "Iniciando os serviços 'app' (PHP-FPM) e 'nginx' (Webserver)..."
+run_command "docker compose up -d app nginx"
+log_success "Aplicação está no ar!"
+
+# 6. Aguardar o MySQL (que já estava subindo)
 log_info "Aguardando o contêiner do MySQL (15 segundos)..."
 sleep 15
 
-# 4. Instalar dependências do Composer (dentro do contêiner)
-log_info "Instalando dependências do Composer..."
-run_command "docker compose exec app composer install --no-interaction --prefer-dist --optimize-autoloader"
-
-# 5. Gerar a Chave da Aplicação
+# 7. Gerar a Chave da Aplicação
 log_info "Gerando a chave da aplicação (APP_KEY)..."
 run_command "docker compose exec app php artisan key:generate"
 
-# 6. Limpar caches (para garantir que o .env seja lido)
+# 8. Limpar caches (para garantir que o .env seja lido)
 log_info "Limpando caches de configuração..."
 run_command "docker compose exec app php artisan optimize:clear"
 
-# 7. Rodar as Migrações
+# 9. Rodar as Migrações
 log_info "Executando as migrações do banco de dados (Triggers, Procedures...)..."
 run_command "docker compose exec app php artisan migrate:fresh"
-
-# 10. Importar dados para o Scout (Opcional, mas recomendado)
-log_info "Indexando dados para o Scout (Busca)..."
-# Usamos \" para garantir que as aspas sejam passadas corretamente para o shell do container
-run_command "docker compose exec app php artisan scout:import \"App\Models\Livro\""
-run_command "docker compose exec app php artisan scout:import \"App\Models\Autor\""
-run_command "docker compose exec app php artisan scout:import \"App\Models\Assunto\""
-log_success "Indexação do Scout concluída."
 
 # --- Fim ---
 echo ""
