@@ -1,0 +1,478 @@
+{
+	"info": {
+		"_postman_id": "a8b4c2d0-e1f2-4a3b-8c9d-1a2b3c4d5e6f",
+		"name": "Desafio Livraria API",
+		"schema": "https.schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Autores",
+			"item": [
+				{
+					"name": "Listar Autores",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/autores",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"autores"
+							]
+						},
+						"description": "Lista todos os autores (paginado)."
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Autor",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Nome\": \"J.R.R. Tolkien\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/autores",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"autores"
+							]
+						},
+						"description": "Cria um novo autor. (Testa a validação de 'Nome' duplicado)"
+					},
+					"response": []
+				},
+				{
+					"name": "Obter Autor",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/autores/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"autores",
+								"1"
+							]
+						},
+						"description": "Busca um autor específico pelo ID (CodAu)."
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Autor",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Nome\": \"J.R.R. Tolkien (Atualizado)\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/autores/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"autores",
+								"1"
+							]
+						},
+						"description": "Atualiza um autor existente."
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir Autor",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/autores/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"autores",
+								"1"
+							]
+						},
+						"description": "Exclui um autor. (Deve falhar com 409 se tiver livros associados)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Assuntos",
+			"item": [
+				{
+					"name": "Listar Assuntos",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/assuntos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"assuntos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Assunto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Descricao\": \"Fantasia\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/assuntos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"assuntos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obter Assunto",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/assuntos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"assuntos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Assunto",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Descricao\": \"Fantasia Épica\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/assuntos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"assuntos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir Assunto",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/assuntos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"assuntos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Livros",
+			"item": [
+				{
+					"name": "Listar Livros",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/livros",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"livros"
+							]
+						},
+						"description": "Lista todos os livros (paginado) e já inclui autores e assuntos (Eager Loading)."
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Livro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Titulo\": \"O Hobbit\",\n    \"Editora\": \"HarperCollins\",\n    \"Edicao\": 1,\n    \"AnoPublicacao\": \"1937\",\n    \"Valor\": 59.90,\n    \"autores\": [1],\n    \"assuntos\": [1]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/livros",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"livros"
+							]
+						},
+						"description": "Cria um novo livro e associa autores e assuntos (pelos seus IDs)."
+					},
+					"response": []
+				},
+				{
+					"name": "Obter Livro",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/livros/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"livros",
+								"1"
+							]
+						},
+						"description": "Busca um livro específico e seus relacionamentos."
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Livro",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Titulo\": \"O Hobbit (Edição de Luxo)\",\n    \"Editora\": \"HarperCollins\",\n    \"Edicao\": 2,\n    \"AnoPublicacao\": \"1937\",\n    \"Valor\": 159.90,\n    \"autores\": [1],\n    \"assuntos\": [1]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/livros/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"livros",
+								"1"
+							]
+						},
+						"description": "Atualiza um livro e sincroniza seus autores e assuntos."
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir Livro",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/livros/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"livros",
+								"1"
+							]
+						},
+						"description": "Exclui um livro (e suas entradas nas tabelas pivot)."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost/api",
+			"type": "string"
+		}
+	]
+}

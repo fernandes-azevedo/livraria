@@ -19,15 +19,10 @@ class Autor extends Model
     // 2. A chave primária é 'CodAu', e não 'id'.
     protected $primaryKey = 'CodAu';
 
-    // 3. A chave primária não é auto-incrementável (embora seja, 
-    //    definir como 'integer' ajuda em alguns casos, mas 'increments' 
-    //    na migration cuida disso. O mais importante é...)
-    // public $incrementing = true; // (Isso já é o padrão)
-
-    // 4. Este model NÃO usa os campos 'created_at' e 'updated_at'.
+    // 3. Este model NÃO usa os campos 'created_at' e 'updated_at'.
     public $timestamps = false;
 
-    // 5. Proteção de Mass Assignment para o campo 'Nome'.
+    // 4. Proteção de Mass Assignment para o campo 'Nome'.
     protected $fillable = ['Nome'];
 
     /**
@@ -55,5 +50,15 @@ class Autor extends Model
             'Autor_CodAu',
             'Livro_CodI'
         );
+    }
+
+    /**
+     * "Para o Route Model Binding da API funcionar, informei ao Laravel
+     * que a chave da rota (o 'id' da URL) deve ser resolvida
+     * usando a coluna 'CodAu', e não a 'id' padrão."
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'CodAu';
     }
 }

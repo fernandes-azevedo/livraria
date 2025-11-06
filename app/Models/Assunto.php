@@ -42,4 +42,12 @@ class Assunto extends Model
             'Livro_CodI'
         );
     }
+
+    /**
+     * Define a chave de rota para o model (para o Binding da API)
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'codAs';
+    }
 }
