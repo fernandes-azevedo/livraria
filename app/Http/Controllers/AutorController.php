@@ -47,7 +47,7 @@ class AutorController extends Controller
             Autor::create($request->validated());
 
             // "Invalida o cache de autores para que a lista seja atualizada no próximo acesso."
-            Cache::forget('autores.all');
+            Cache::forget('autores_list');
 
             return redirect()->route('autores.index')
                 ->with('success', 'Autor cadastrado com sucesso!');
@@ -85,7 +85,7 @@ class AutorController extends Controller
         $autor->update($request->validated());
 
         // "Invalida o cache de autores."
-        Cache::forget('autores.all');
+        Cache::forget('autores_list');
 
         return redirect()->route('autores.index')
             ->with('success', 'Autor atualizado com sucesso!');
@@ -104,7 +104,7 @@ class AutorController extends Controller
         $autor->delete();
 
         // "Invalida o cache de autores."
-        Cache::forget('autores.all');
+        Cache::forget('autores_list');
         return redirect()->route('autores.index')
             ->with('success', 'Autor excluído com sucesso!');
     }

@@ -23,10 +23,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        $autores = Autor::factory(50)->create();
-        $assuntos = Assunto::factory(50)->create();
+        $autores = Autor::factory(5)->create();
+        $assuntos = Assunto::factory(10)->create();
 
-        Livro::factory(50)->create()->each(function ($livro) use ($autores, $assuntos) {
+        Livro::factory(20)->create()->each(function ($livro) use ($autores, $assuntos) {
             $livro->autores()->attach(
                 $autores->random(rand(1, 3))->pluck('CodAu')->toArray()
             );

@@ -42,7 +42,7 @@ class AssuntoController extends Controller
         Assunto::create($request->validated());
 
         // "Invalida o cache de assuntos."
-        Cache::forget('assuntos.all');
+        Cache::forget('assuntos_list');
 
         return redirect()->route('assuntos.index')
             ->with('success', 'Assunto cadastrado com sucesso!');
@@ -69,10 +69,10 @@ class AssuntoController extends Controller
      */
     public function update(UpdateAssuntoRequest $request, Assunto $assunto)
     {
-        $assunto->update($request->validated());
-
+         $assunto->update($request->validated());
+         
         // "Invalida o cache de assuntos."
-        Cache::forget('assuntos.all');
+        Cache::forget('assuntos_list');
 
         return redirect()->route('assuntos.index')
             ->with('success', 'Assunto atualizado com sucesso!');
@@ -93,7 +93,7 @@ class AssuntoController extends Controller
         $assunto->delete();
 
         // "Invalida o cache de assuntos."
-        Cache::forget('assuntos.all');
+        Cache::forget('assuntos_list');
 
         return redirect()->route('assuntos.index')
             ->with('success', 'Assunto excluído com sucesso!');
