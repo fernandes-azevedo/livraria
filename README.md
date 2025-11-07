@@ -98,3 +98,8 @@ Após a execução (pode levar alguns minutos na primeira vez), a aplicação es
 Para executar a suíte de testes (PHPUnit), utilize o seguinte comando:
 
 docker compose exec app php artisan test  
+
+### **Como popular o banco**
+Execute o Comando (Limpa o banco, recria a estrutura e executa os Seeders)
+
+docker compose exec app php artisan migrate:fresh --seed

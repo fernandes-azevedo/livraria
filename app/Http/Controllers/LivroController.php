@@ -20,14 +20,14 @@ class LivroController extends Controller
     {
         $busca = $request->input('busca');
 
-        // "Lógica de busca e paginação implementada.
+        // Lógica de busca e paginação implementada.
         // Se um termo de busca for fornecido, usa o Scout para a pesquisa.
-        // Caso contrário, exibe a lista paginada padrão."
+        // Caso contrário, exibe a lista paginada padrão.
         if ($busca) {
-            // "O Eager Loading com 'with()' continua funcionando com o Scout."
+            // O Eager Loading com 'with()' continua funcionando com o Scout.
             $livros = Livro::search($busca)->query(function ($query) {
-                // "CORREÇÃO: Para usar Eager Loading com Scout, o método 'with()'
-                // deve ser aplicado dentro de uma closure no método 'query()'."
+                // Para usar Eager Loading com Scout, o método 'with()'
+                // deve ser aplicado dentro de uma closure no método 'query()'.
                 $query->with('autores', 'assuntos');
             })->paginate(15);
         } else {

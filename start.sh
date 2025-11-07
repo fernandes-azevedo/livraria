@@ -76,7 +76,7 @@ log_success "Pasta 'vendor/' criada."
 #    O 'nginx' agora poderá se conectar ao 'app'.
 log_info "Iniciando os serviços 'app' (PHP-FPM) e 'nginx' (Webserver)..."
 run_command "docker compose up -d app nginx"
-log_success "Aplicação está no ar!"
+log_success "Aplicação quase está no ar!"
 
 # 6. Aguardar o MySQL (que já estava subindo)
 log_info "Aguardando o contêiner do MySQL (15 segundos)..."

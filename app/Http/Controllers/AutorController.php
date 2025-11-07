@@ -21,7 +21,7 @@ class AutorController extends Controller
         if ($busca) {
             $autores = Autor::search($busca)->paginate(15);
         } else {
-            // "Substituímos o get() por paginate() para paginar os resultados."
+            // Troquei o get() por paginate() para paginar os resultados.
             $autores = Autor::orderBy('Nome')->paginate(15);
         }
 
